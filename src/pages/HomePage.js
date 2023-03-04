@@ -7,7 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import ConfirmModal from "../components/ConfirmModal";
 import FormModal from "../components/FormModal";
 import AddIcon from "@mui/icons-material/Add";
-
+import SearchCar from "../components/SearchCar";
 const HomePage = () => {
   const [cars, setCars] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -16,6 +16,7 @@ const HomePage = () => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
   const [mode, setMode] = useState("create");
+  const [searchValue, setSearchValue] = useState("");
 
   const handleClickNew = () => {
     setMode("create");
@@ -85,14 +86,16 @@ const HomePage = () => {
     release_date: car.release_date,
   }));
 
-  const getData =
-    useCallback(
-      async () => {
-    const res = await apiService.get(`/cars?page=${page}`);
-    setCars(res.data.cars);
-    setTotalPages(res.data.total);
-      }
-      , [page]);
+  const getData = useCallback(async () => {
+    let url = `/cars?page=${page}`;
+    if (searchValue) {
+      url += `&search=${searchValue}`;
+    }
+    const res = await apiService.get(url);
+    console.log(res);
+    setCars(res.cars);
+    setTotalPages(res.total);
+  }, [page, searchValue]);
 
   useEffect(() => {
     getData();
@@ -122,6 +125,7 @@ const HomePage = () => {
         }}
         mode={mode}
       />
+      <SearchCar setSearchValue={setSearchValue} />
       <div style={{ height: 630, width: "100%" }}>
         <DataGrid
           disableSelectionOnClick
